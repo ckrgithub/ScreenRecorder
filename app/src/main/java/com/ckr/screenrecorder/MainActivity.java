@@ -174,8 +174,9 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 							second = "0" + second;
 						}
 						if (textView != null) {
-							Logd(TAG, "handleMessage: start  minute:" + minute + ",second:" + second);
-							textView.setText(String.format(recordingText, minute, second));
+							String format = String.format(recordingText, minute, second);
+							Logd(TAG, "handleMessage: start  minute:" + minute + ",second:" + second + ",format:" + format);
+							textView.setText(format);
 						}
 					}
 					break;
