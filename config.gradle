@@ -1,0 +1,16 @@
+//全局参数
+ext {
+    appConfig = [
+            versionCode  : 101,
+            versionName  : "1.0.1",
+            applicationId: "com.ckr.screenrecorder",
+    ]
+
+    androidConfig = [
+            compileSdkVersion: 26,
+            minSdkVersion    : 16,
+            targetSdkVersion : 26,
+    ]
+
+    supportVersion = "26.1.0"
+}
