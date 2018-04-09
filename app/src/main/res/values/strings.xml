@@ -5,4 +5,5 @@
     <string name="record_start">开始录屏</string>
     <string name="record_stop">停止录屏</string>
     <string name="recording">正在录制：%1$s : %2$s</string>
+    <string name="recorded">已录制：%1$s : %2$s</string>
 </resources>

@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 	@BindString(R.string.record_stop)
 	String stopRecord;
 	String recordingText;
+	String recordedText;
 	private Unbinder unbinder;
 	private ScheduledExecutorService mTimerExecutor;
 	private int count = 0;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 		setContentView(R.layout.activity_main);
 		unbinder = ButterKnife.bind(this);
 		recordingText = getString(R.string.recording);
+		recordedText = getString(R.string.recorded);
 		RecordLog.debug();
 	}
 
@@ -195,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 					}
 					if (null != textView) {
 						Logd(TAG, "handleMessage: stop  minute:" + minute + ",second:" + second);
-						textView.setText(String.format(recordingText, minute, second));
+						textView.setText(String.format(recordedText, minute, second));
 					}
 					if (null != button && !startRecord.equals(button.getText())) {
 						button.setText(startRecord);
