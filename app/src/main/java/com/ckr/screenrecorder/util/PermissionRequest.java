@@ -24,8 +24,8 @@ public class PermissionRequest {
 	public static final int REQUEST_LOCATION = 3;
 	public static final int REQUEST_CAMERA = 4;
 	public static final int REQUEST_RECORD = 5;
-	private static final String[] PERMISSION_PHONE = {READ_CONTACTS};
-	private static final String[] PERMISSION_READ = {READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE};
+	private static final String[] PERMISSION_CONTACTS = {READ_CONTACTS};
+	private static final String[] PERMISSION_STORAGE = {READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE};
 	private static final String[] PERMISSION_CALENDAR = {READ_CALENDAR, WRITE_CALENDAR};
 	private static final String[] PERMISSION_LOCATION = {ACCESS_FINE_LOCATION};
 	private static final String[] PERMISSION_CAMERA = {CAMERA};
@@ -37,7 +37,7 @@ public class PermissionRequest {
 		}
 		boolean isGrant = true;
 		String permission = null;
-		for (String s : PERMISSION_PHONE) {
+		for (String s : PERMISSION_CONTACTS) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
 				permission = s;
@@ -46,10 +46,10 @@ public class PermissionRequest {
 		}
 		if (!isGrant) {
 			if (activity.shouldShowRequestPermissionRationale(permission)) {
-				activity.requestPermissions(PERMISSION_PHONE, REQUEST_PHONE);
+				activity.requestPermissions(PERMISSION_CONTACTS, REQUEST_PHONE);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启手机联系人的读写权限");
-				activity.requestPermissions(PERMISSION_PHONE, REQUEST_PHONE);
+				activity.requestPermissions(PERMISSION_CONTACTS, REQUEST_PHONE);
 			}
 		}
 		return isGrant;
@@ -61,7 +61,7 @@ public class PermissionRequest {
 		}
 		boolean isGrant = true;
 		String permission = null;
-		for (String s : PERMISSION_PHONE) {
+		for (String s : PERMISSION_CONTACTS) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
 				permission = s;
@@ -70,10 +70,10 @@ public class PermissionRequest {
 		}
 		if (!isGrant) {
 			if (fragment.shouldShowRequestPermissionRationale(permission)) {
-				fragment.requestPermissions(PERMISSION_PHONE, REQUEST_PHONE);
+				fragment.requestPermissions(PERMISSION_CONTACTS, REQUEST_PHONE);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启手机联系人的读写权限");
-				fragment.requestPermissions(PERMISSION_PHONE, REQUEST_PHONE);
+				fragment.requestPermissions(PERMISSION_CONTACTS, REQUEST_PHONE);
 			}
 		}
 		return isGrant;
@@ -85,7 +85,7 @@ public class PermissionRequest {
 		}
 		boolean isGrant = true;
 		String permission = null;
-		for (String s : PERMISSION_READ) {
+		for (String s : PERMISSION_STORAGE) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {//检查权限
 				permission = s;
 				isGrant = false;
@@ -94,10 +94,10 @@ public class PermissionRequest {
 		}
 		if (!isGrant) {
 			if (activity.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝  return true
-				activity.requestPermissions(PERMISSION_READ, REQUEST_READ);
+				activity.requestPermissions(PERMISSION_STORAGE, REQUEST_READ);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用了开启文件读写权限");
-				activity.requestPermissions(PERMISSION_READ, REQUEST_READ);
+				activity.requestPermissions(PERMISSION_STORAGE, REQUEST_READ);
 			}
 		}
 		return isGrant;
@@ -109,7 +109,7 @@ public class PermissionRequest {
 		}
 		boolean isGrant = true;
 		String permission = null;
-		for (String s : PERMISSION_READ) {
+		for (String s : PERMISSION_STORAGE) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				permission = s;
 				isGrant = false;
@@ -117,10 +117,10 @@ public class PermissionRequest {
 		}
 		if (!isGrant) {
 			if (fragment.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝并且不再提醒  return true
-				fragment.requestPermissions(PERMISSION_READ, REQUEST_READ);
+				fragment.requestPermissions(PERMISSION_STORAGE, REQUEST_READ);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用了开启文件读写权限");
-				fragment.requestPermissions(PERMISSION_READ, REQUEST_READ);
+				fragment.requestPermissions(PERMISSION_STORAGE, REQUEST_READ);
 			}
 		}
 		return isGrant;
