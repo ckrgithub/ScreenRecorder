@@ -133,7 +133,7 @@ public class ScreenRecorder {
 
 	private void initMediaRecorder() {
 		Logd(TAG, "initMediaRecorder: ");
-//		if (mMediaRecorder == null) {
+		if (mMediaRecorder == null) {
 			Logd(TAG, "initMediaRecorder: init");
 			File file = null;
 			if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -161,14 +161,13 @@ public class ScreenRecorder {
 			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 			mMediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
 			mMediaRecorder.setVideoFrameRate(10);
-//		}
+		}
 		try {
 			Logd(TAG, "initMediaRecorder: prepare");
 			recordState = STATE_PREPARE;
 			mMediaRecorder.prepare();
 		} catch (IOException e) {
 			e.printStackTrace();
-//			recordState = STATE_STOP;
 			mMediaRecorder.release();
 			ToastUtils.toast("录制异常，请从新录制");
 		}
@@ -195,12 +194,19 @@ public class ScreenRecorder {
 			if (mProjection != null) {
 				mProjection.stop();
 				mVirtualDisplay.release();
-				if (mMediaRecorder != null) {
-					recordState = STATE_STOP;
-					mMediaRecorder.stop();
-					mMediaRecorder.release();
-				}
 			}
+		}
+		if (mMediaRecorder != null) {
+			recordState = STATE_RELEASE;
+			mMediaRecorder.stop();
+			mMediaRecorder.release();
+		}
+	}
+
+	public void stop() {
+		if (mMediaRecorder != null) {
+			recordState = STATE_STOP;
+			mMediaRecorder.stop();
 		}
 	}
 }
