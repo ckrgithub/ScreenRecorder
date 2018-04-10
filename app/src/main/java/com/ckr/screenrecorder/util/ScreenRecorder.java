@@ -23,7 +23,7 @@ import static com.ckr.screenrecorder.util.RecordLog.Logd;
 public class ScreenRecorder {
 	private static final String TAG = "ScreenRecorder";
 	public static final int REQUEST_MEDIA_PROJECTION = 1;
-	public static final int STATE_DEFAULT = -1;
+	public static final int STATE_IDLE = -1;
 	public static final int STATE_INIT = 0;
 	public static final int STATE_PREPARE = 1;
 	public static final int STATE_START = 2;
@@ -38,7 +38,7 @@ public class ScreenRecorder {
 	private MediaProjection mProjection;
 	private VirtualDisplay mVirtualDisplay;
 	private MediaRecorder mMediaRecorder;
-	private int recordState = STATE_INIT;
+	private int recordState = STATE_IDLE;
 
 	private ScreenRecorder() {
 	}
@@ -123,7 +123,10 @@ public class ScreenRecorder {
 
 	public void startRecord() {
 		Logd(TAG, "startRecord: ");
-		initMediaRecorder();
+		if (recordState == STATE_IDLE || recordState == STATE_RELEASE) {
+			initMediaRecorder();
+		}
+		prepare();
 		if (recordState == STATE_PREPARE) {
 			createVirtualDisplay();
 			recordState = STATE_START;
@@ -133,35 +136,36 @@ public class ScreenRecorder {
 
 	private void initMediaRecorder() {
 		Logd(TAG, "initMediaRecorder: ");
-		if (mMediaRecorder == null) {
-			Logd(TAG, "initMediaRecorder: init");
-			File file = null;
-			if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-				String parentPath = Environment.getExternalStorageDirectory() + File.separator + ScreenRecordApplication.getContext().getString(R.string.app_name);
-				File parentFile = new File(parentPath);
-				if (!parentFile.exists()) {
-					parentFile.mkdirs();
-				}
-				String dateName = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-				file = new File(parentPath, "录屏_" + dateName + ".mp4");
-			} else {
-				String parentPath = ScreenRecordApplication.getContext().getCacheDir().getAbsolutePath();
-				String dateName = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-				file = new File(parentPath, "录屏_" + dateName + ".mp4");
+		recordState = STATE_INIT;
+		File file = null;
+		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			String parentPath = Environment.getExternalStorageDirectory() + File.separator + ScreenRecordApplication.getContext().getString(R.string.app_name);
+			File parentFile = new File(parentPath);
+			if (!parentFile.exists()) {
+				parentFile.mkdirs();
 			}
-			String path = file.getAbsolutePath();
-			Logd(TAG, "initMediaRecorder: path:" + path);
-			mMediaRecorder = new MediaRecorder();
-			mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-			mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-			mMediaRecorder.setOutputFile(path);
-			mMediaRecorder.setVideoSize(mWidth, mHeight);
-			mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-			mMediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
-			mMediaRecorder.setVideoFrameRate(10);
+			String dateName = new SimpleDateFormat("HHmmss").format(new Date());
+			file = new File(parentPath, "录屏_" + dateName + ".mp4");
+		} else {
+			String parentPath = ScreenRecordApplication.getContext().getCacheDir().getAbsolutePath();
+			String dateName = new SimpleDateFormat("HHmmss").format(new Date());
+			file = new File(parentPath, "录屏_" + dateName + ".mp4");
 		}
+		String path = file.getAbsolutePath();
+		Logd(TAG, "initMediaRecorder: path:" + path);
+		mMediaRecorder = new MediaRecorder();
+		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+		mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		mMediaRecorder.setOutputFile(path);
+		mMediaRecorder.setVideoSize(mWidth, mHeight);
+		mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+		mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+		mMediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
+		mMediaRecorder.setVideoFrameRate(10);
+	}
+
+	private void prepare() {
 		try {
 			Logd(TAG, "initMediaRecorder: prepare");
 			recordState = STATE_PREPARE;
@@ -193,13 +197,18 @@ public class ScreenRecorder {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			if (mProjection != null) {
 				mProjection.stop();
+				mProjection = null;
+			}
+			if (mVirtualDisplay != null) {
 				mVirtualDisplay.release();
+				mVirtualDisplay = null;
 			}
 		}
 		if (mMediaRecorder != null) {
 			recordState = STATE_RELEASE;
 			mMediaRecorder.stop();
 			mMediaRecorder.release();
+			mMediaRecorder = null;
 		}
 	}
 
