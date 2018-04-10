@@ -30,6 +30,7 @@ public class PermissionRequest {
 	public static final int REQUEST_LOCATION = 3;
 	public static final int REQUEST_CAMERA = 4;
 	public static final int REQUEST_RECORD = 5;
+	public static final int REQUEST_PHONE = 6;
 	public static final String[] PERMISSION_CONTACTS = {READ_CONTACTS};
 	public static final String[] PERMISSION_STORAGE = {READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE};
 	public static final String[] PERMISSION_CALENDAR = {READ_CALENDAR, WRITE_CALENDAR};
@@ -74,8 +75,10 @@ public class PermissionRequest {
 		}
 		if (!isGrant) {
 			if (shouldShowRationale(fragment, group)) {
+				Logd(TAG, "requestPermission: shouldShowRationale=true");
 				fragment.requestPermissions(group, requestCode);
 			} else {
+				Logd(TAG, "requestPermission: shouldShowRationale=false");
 				fragment.requestPermissions(group, requestCode);
 			}
 		}
@@ -105,7 +108,6 @@ public class PermissionRequest {
 		List<String> denied = new ArrayList<>();
 		if (grantResults.length > 0) {
 			for (int i = 0; i < grantResults.length; i++) {
-				Logd(TAG, "isPermissionGranted: grantResults:" + grantResults[i] + ",i:" + i);
 				String perm = permissions[i];
 				if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
 					denied.add(perm);
@@ -124,7 +126,6 @@ public class PermissionRequest {
 		List<String> denied = new ArrayList<>();
 		if (grantResults.length > 0) {
 			for (int i = 0; i < grantResults.length; i++) {
-				Logd(TAG, "isPermissionGranted: grantResults:" + grantResults[i] + ",i:" + i);
 				String perm = permissions[i];
 				if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
 					denied.add(perm);
