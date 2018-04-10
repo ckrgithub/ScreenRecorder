@@ -97,12 +97,11 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 			startTimer();
 			ToastUtils.toast(startRecord);
 		} else {
-			if (recorder.isError()) {
+			if (recorder.isRecordError()) {
 				recorder.startRecord();
 				prepare();
 			} else {
 				recorder.release();
-				ScreenRecorder.setNull();
 				stopTimer();
 				ToastUtils.toast(stopRecord);
 			}

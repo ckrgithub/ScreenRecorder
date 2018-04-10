@@ -10,8 +10,6 @@ import com.ckr.screenrecorder.util.ScreenRecorder;
 
 public class ScreenRecordActivity extends AppCompatActivity {
 
-	private ScreenRecorder mScreenRecorder;
-
 	public static void start(Context context) {
 		Intent starter = new Intent(context, ScreenRecordActivity.class);
 		starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -26,7 +24,7 @@ public class ScreenRecordActivity extends AppCompatActivity {
 
 	private void init() {
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-		mScreenRecorder = new ScreenRecorder(this.getApplicationContext());
+		ScreenRecorder mScreenRecorder = ScreenRecorder.getInstance();
 		mScreenRecorder.init(displayMetrics.widthPixels, displayMetrics.heightPixels, displayMetrics.densityDpi);
 		startActivityForResult(mScreenRecorder.getIntent(), ScreenRecorder.REQUEST_MEDIA_PROJECTION);
 	}
@@ -35,19 +33,10 @@ public class ScreenRecordActivity extends AppCompatActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (RESULT_OK == resultCode && ScreenRecorder.REQUEST_MEDIA_PROJECTION == requestCode) {
+			ScreenRecorder mScreenRecorder = ScreenRecorder.getInstance();
 			mScreenRecorder.setProjection(resultCode, data);
-			startRecord();
+			mScreenRecorder.startRecord();
 		}
 		finish();
-	}
-
-	private void startRecord() {
-		mScreenRecorder.startRecord();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		mScreenRecorder=null;
 	}
 }
