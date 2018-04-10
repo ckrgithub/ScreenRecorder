@@ -14,8 +14,6 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_CALENDAR;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static android.Manifest.permission_group.CALENDAR;
-import static android.Manifest.permission_group.STORAGE;
 import static com.ckr.screenrecorder.util.RecordLog.Logd;
 
 public class PermissionRequest {
@@ -38,14 +36,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_PHONE) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(READ_CONTACTS)) {
+			if (activity.shouldShowRequestPermissionRationale(permission)) {
 				activity.requestPermissions(PERMISSION_PHONE, REQUEST_PHONE);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启手机联系人的读写权限");
@@ -60,14 +60,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_PHONE) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(READ_CONTACTS)) {
+			if (fragment.shouldShowRequestPermissionRationale(permission)) {
 				fragment.requestPermissions(PERMISSION_PHONE, REQUEST_PHONE);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启手机联系人的读写权限");
@@ -82,14 +84,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_READ) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {//检查权限
+				permission = s;
 				isGrant = false;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(STORAGE)) {//选择了拒绝  return true
+			if (activity.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝  return true
 				activity.requestPermissions(PERMISSION_READ, REQUEST_READ);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用了开启文件读写权限");
@@ -104,13 +108,15 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_READ) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
+				permission = s;
 				isGrant = false;
 			}
 		}
 		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(STORAGE)) {//选择了拒绝并且不再提醒  return true
+			if (fragment.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝并且不再提醒  return true
 				fragment.requestPermissions(PERMISSION_READ, REQUEST_READ);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用了开启文件读写权限");
@@ -125,14 +131,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_CALENDAR) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(CALENDAR)) {//选择了拒绝并且不再提醒  return true
+			if (activity.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝并且不再提醒  return true
 				activity.requestPermissions(PERMISSION_CALENDAR, REQUEST_CALENDAR);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用了开启日历读写权限");
@@ -147,14 +155,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_CALENDAR) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(CALENDAR)) {//选择了拒绝并且不再提醒  return true
+			if (fragment.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝并且不再提醒  return true
 				fragment.requestPermissions(PERMISSION_CALENDAR, REQUEST_CALENDAR);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用了开启日历读写权限");
@@ -169,14 +179,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_LOCATION) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(ACCESS_FINE_LOCATION)) {
+			if (activity.shouldShowRequestPermissionRationale(permission)) {
 				activity.requestPermissions(PERMISSION_LOCATION, REQUEST_LOCATION);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启GPS定位权限");
@@ -191,14 +203,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_LOCATION) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(ACCESS_FINE_LOCATION)) {
+			if (fragment.shouldShowRequestPermissionRationale(permission)) {
 				fragment.requestPermissions(PERMISSION_LOCATION, REQUEST_LOCATION);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启GPS定位权限");
@@ -213,14 +227,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_CAMERA) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(CAMERA)) {
+			if (activity.shouldShowRequestPermissionRationale(permission)) {
 				activity.requestPermissions(PERMISSION_CAMERA, REQUEST_CAMERA);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启拍照权限");
@@ -235,14 +251,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_CAMERA) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(CAMERA)) {
+			if (fragment.shouldShowRequestPermissionRationale(permission)) {
 				fragment.requestPermissions(PERMISSION_CAMERA, REQUEST_CAMERA);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启拍照权限");
@@ -257,14 +275,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission = null;
 		for (String s : PERMISSION_RECORD) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(RECORD_AUDIO)) {
+			if (activity.shouldShowRequestPermissionRationale(permission)) {
 				activity.requestPermissions(PERMISSION_RECORD, REQUEST_RECORD);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启拍照权限");
@@ -279,14 +299,16 @@ public class PermissionRequest {
 			return true;
 		}
 		boolean isGrant = true;
+		String permission=null;
 		for (String s : PERMISSION_RECORD) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
+				permission=s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(RECORD_AUDIO)) {
+			if (fragment.shouldShowRequestPermissionRationale(permission)) {
 				fragment.requestPermissions(PERMISSION_RECORD, REQUEST_RECORD);
 			} else {//选择了拒绝并且不再提醒 ,return false
 				ToastUtils.toast("请在系统应用开启拍照权限");
