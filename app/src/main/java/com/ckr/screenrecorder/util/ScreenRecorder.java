@@ -25,12 +25,13 @@ public class ScreenRecorder {
 	public static final int REQUEST_MEDIA_PROJECTION = 1;
 	public static final int STATE_IDLE = -1;
 	public static final int STATE_INIT = 0;
-	public static final int STATE_PREPARE = 1;
-	public static final int STATE_START = 2;
-	public static final int STATE_RESUME = 3;
-	public static final int STATE_PAUSE = 4;
-	public static final int STATE_STOP = 5;
-	public static final int STATE_RELEASE = 6;
+	public static final int STATE_PREPARING = 10;
+	public static final int STATE_PREPARED = 11;
+	public static final int STATE_START = 110;
+	public static final int STATE_STOP = 111;
+	public static final int STATE_RELEASE = 112;
+	public static final int STATE_RESUME = 113;
+	public static final int STATE_PAUSE = 114;
 	private int mWidth;
 	private int mHeight;
 	private int mDensity;
@@ -64,20 +65,20 @@ public class ScreenRecorder {
 		return recordState;
 	}
 
-	public boolean isRecording() {
+	public final boolean isRecording() {
 		return recordState == STATE_START || recordState == STATE_RESUME;
 	}
 
-	public boolean isPause() {
+	public final boolean isPause() {
 		return recordState == STATE_PAUSE;
 	}
 
-	public boolean isStop() {
+	public final boolean isStop() {
 		return recordState == STATE_STOP;
 	}
 
-	public boolean isPrepare() {
-		return recordState == STATE_PREPARE;
+	public final boolean isPrepare() {
+		return recordState == STATE_PREPARED;
 	}
 
 	public Intent getIntent() {
@@ -101,7 +102,7 @@ public class ScreenRecorder {
 		Logd(TAG, "pauseRecord: ");
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			if (mMediaRecorder != null) {
-				if (recordState == STATE_START || recordState == STATE_RESUME) {
+				if (isRecording()) {
 					recordState = STATE_PAUSE;
 					mMediaRecorder.pause();
 				}
@@ -113,7 +114,7 @@ public class ScreenRecorder {
 		Logd(TAG, "pauseRecord: ");
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			if (mMediaRecorder != null) {
-				if (recordState == STATE_PAUSE) {
+				if (isPause()) {
 					recordState = STATE_RESUME;
 					mMediaRecorder.resume();
 				}
@@ -123,11 +124,12 @@ public class ScreenRecorder {
 
 	public void startRecord() {
 		Logd(TAG, "startRecord: ");
-		if (recordState == STATE_IDLE || recordState == STATE_RELEASE) {
-			initMediaRecorder();
-		}
 		prepare();
-		if (recordState == STATE_PREPARE) {
+		start();
+	}
+
+	public void start() {
+		if (isPrepare()) {
 			createVirtualDisplay();
 			recordState = STATE_START;
 			mMediaRecorder.start();
@@ -165,14 +167,17 @@ public class ScreenRecorder {
 		mMediaRecorder.setVideoFrameRate(10);
 	}
 
-	private void prepare() {
+	public void prepare() {
+		if (recordState == STATE_IDLE || recordState == STATE_RELEASE) {
+			initMediaRecorder();
+		}
 		try {
 			Logd(TAG, "initMediaRecorder: prepare");
-			recordState = STATE_PREPARE;
+			recordState = STATE_PREPARING;
 			mMediaRecorder.prepare();
+			recordState = STATE_PREPARED;
 		} catch (IOException e) {
 			e.printStackTrace();
-			mMediaRecorder.release();
 			ToastUtils.toast("录制异常，请从新录制");
 		}
 	}
@@ -206,14 +211,16 @@ public class ScreenRecorder {
 		}
 		if (mMediaRecorder != null) {
 			recordState = STATE_RELEASE;
-			mMediaRecorder.stop();
+			if (isRecording()) {
+				mMediaRecorder.stop();
+			}
 			mMediaRecorder.release();
 			mMediaRecorder = null;
 		}
 	}
 
 	public void stop() {
-		if (mMediaRecorder != null) {
+		if (mMediaRecorder != null && isRecording()) {
 			recordState = STATE_STOP;
 			mMediaRecorder.stop();
 		}
