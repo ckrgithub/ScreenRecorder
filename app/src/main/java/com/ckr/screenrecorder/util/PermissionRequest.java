@@ -4,13 +4,19 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.CALL_PHONE;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_CALENDAR;
 import static android.Manifest.permission.READ_CONTACTS;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_CALENDAR;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -18,315 +24,134 @@ import static com.ckr.screenrecorder.util.RecordLog.Logd;
 
 public class PermissionRequest {
 	private static final String TAG = "PermissionRequest";
-	public static final int REQUEST_PHONE = 0;
-	public static final int REQUEST_READ = 1;
+	public static final int REQUEST_CONTACTS = 0;
+	public static final int REQUEST_STORAGE = 1;
 	public static final int REQUEST_CALENDAR = 2;
 	public static final int REQUEST_LOCATION = 3;
 	public static final int REQUEST_CAMERA = 4;
 	public static final int REQUEST_RECORD = 5;
-	private static final String[] PERMISSION_CONTACTS = {READ_CONTACTS};
-	private static final String[] PERMISSION_STORAGE = {READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE};
-	private static final String[] PERMISSION_CALENDAR = {READ_CALENDAR, WRITE_CALENDAR};
-	private static final String[] PERMISSION_LOCATION = {ACCESS_FINE_LOCATION};
-	private static final String[] PERMISSION_CAMERA = {CAMERA};
-	private static final String[] PERMISSION_RECORD = {RECORD_AUDIO};
+	public static final String[] PERMISSION_CONTACTS = {READ_CONTACTS};
+	public static final String[] PERMISSION_STORAGE = {READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE};
+	public static final String[] PERMISSION_CALENDAR = {READ_CALENDAR, WRITE_CALENDAR};
+	public static final String[] PERMISSION_LOCATION = {ACCESS_FINE_LOCATION};
+	public static final String[] PERMISSION_CAMERA = {CAMERA};
+	public static final String[] PERMISSION_RECORD = {RECORD_AUDIO};
+	public static final String[] PERMISSION_PHONE = {READ_PHONE_STATE, CALL_PHONE};
 
-	public static boolean requestPhonePermission(@NonNull final Activity activity) {
+	public static boolean requestPermission(@NonNull final Activity activity, @NonNull String[] group, int requestCode) {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 			return true;
 		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_CONTACTS) {
+		boolean isGranted = true;
+		for (String s : group) {
 			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission = s;
+				isGranted = false;
 				break;
 			}
 		}
-		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(permission)) {
-				activity.requestPermissions(PERMISSION_CONTACTS, REQUEST_PHONE);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用开启手机联系人的读写权限");
-				activity.requestPermissions(PERMISSION_CONTACTS, REQUEST_PHONE);
+		if (!isGranted) {
+			if (shouldShowRationale(activity, group)) {//仅仅选择了拒绝
+				Logd(TAG, "requestPermission: shouldShowRationale=true");
+				ActivityCompat.requestPermissions(activity, group, requestCode);
+			} else {
+				Logd(TAG, "requestPermission: shouldShowRationale=false");
+				ActivityCompat.requestPermissions(activity, group, requestCode);
 			}
 		}
-		return isGrant;
+		return isGranted;
 	}
 
-	public static boolean requestPhonePermission(@NonNull final Fragment fragment) {
+	public static boolean requestPermission(@NonNull final Fragment fragment, @NonNull String[] group, int requestCode) {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 			return true;
 		}
 		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_CONTACTS) {
+		for (String s : group) {
 			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
 				isGrant = false;
-				permission = s;
 				break;
 			}
 		}
 		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(permission)) {
-				fragment.requestPermissions(PERMISSION_CONTACTS, REQUEST_PHONE);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用开启手机联系人的读写权限");
-				fragment.requestPermissions(PERMISSION_CONTACTS, REQUEST_PHONE);
+			if (shouldShowRationale(fragment, group)) {
+				fragment.requestPermissions(group, requestCode);
+			} else {
+				fragment.requestPermissions(group, requestCode);
 			}
 		}
 		return isGrant;
 	}
 
-	public static boolean requestReadPermission(@NonNull final Activity activity) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_STORAGE) {
-			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {//检查权限
-				permission = s;
-				isGrant = false;
-				break;
+
+	private static boolean shouldShowRationale(Activity activity, @NonNull String[] perms) {
+		for (String perm : perms) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
+				return true;
 			}
 		}
-		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝  return true
-				activity.requestPermissions(PERMISSION_STORAGE, REQUEST_READ);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用了开启文件读写权限");
-				activity.requestPermissions(PERMISSION_STORAGE, REQUEST_READ);
-			}
-		}
-		return isGrant;
+		return false;
 	}
 
-	public static boolean requestReadPermission(@NonNull final Fragment fragment) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_STORAGE) {
-			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				permission = s;
-				isGrant = false;
+	private static boolean shouldShowRationale(@NonNull Fragment fragment, @NonNull String[] perms) {
+		for (String perm : perms) {
+			if (fragment.shouldShowRequestPermissionRationale(perm)) {
+				return true;
 			}
 		}
-		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝并且不再提醒  return true
-				fragment.requestPermissions(PERMISSION_STORAGE, REQUEST_READ);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用了开启文件读写权限");
-				fragment.requestPermissions(PERMISSION_STORAGE, REQUEST_READ);
-			}
-		}
-		return isGrant;
+		return false;
 	}
 
-	public static boolean requestCalendarPermission(@NonNull final Activity activity) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_CALENDAR) {
-			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission = s;
-				break;
-			}
-		}
-		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝并且不再提醒  return true
-				activity.requestPermissions(PERMISSION_CALENDAR, REQUEST_CALENDAR);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用了开启日历读写权限");
-				activity.requestPermissions(PERMISSION_CALENDAR, REQUEST_CALENDAR);
-			}
-		}
-		return isGrant;
-	}
-
-	public static boolean requestCalendarPermission(@NonNull final Fragment fragment) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_CALENDAR) {
-			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission = s;
-				break;
-			}
-		}
-		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(permission)) {//选择了拒绝并且不再提醒  return true
-				fragment.requestPermissions(PERMISSION_CALENDAR, REQUEST_CALENDAR);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用了开启日历读写权限");
-				fragment.requestPermissions(PERMISSION_CALENDAR, REQUEST_CALENDAR);
-			}
-		}
-		return isGrant;
-	}
-
-	public static boolean requestLocationPermission(@NonNull final Activity activity) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_LOCATION) {
-			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission = s;
-				break;
-			}
-		}
-		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(permission)) {
-				activity.requestPermissions(PERMISSION_LOCATION, REQUEST_LOCATION);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用开启GPS定位权限");
-				activity.requestPermissions(PERMISSION_LOCATION, REQUEST_LOCATION);
-			}
-		}
-		return isGrant;
-	}
-
-	public static boolean requestLocationPermission(@NonNull final Fragment fragment) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_LOCATION) {
-			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission = s;
-				break;
-			}
-		}
-		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(permission)) {
-				fragment.requestPermissions(PERMISSION_LOCATION, REQUEST_LOCATION);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用开启GPS定位权限");
-				fragment.requestPermissions(PERMISSION_LOCATION, REQUEST_LOCATION);
-			}
-		}
-		return isGrant;
-	}
-
-	public static boolean requestCameraPermission(@NonNull final Activity activity) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_CAMERA) {
-			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission = s;
-				break;
-			}
-		}
-		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(permission)) {
-				activity.requestPermissions(PERMISSION_CAMERA, REQUEST_CAMERA);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用开启拍照权限");
-				activity.requestPermissions(PERMISSION_CAMERA, REQUEST_CAMERA);
-			}
-		}
-		return isGrant;
-	}
-
-	public static boolean requestCameraPermission(@NonNull final Fragment fragment) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_CAMERA) {
-			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission = s;
-				break;
-			}
-		}
-		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(permission)) {
-				fragment.requestPermissions(PERMISSION_CAMERA, REQUEST_CAMERA);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用开启拍照权限");
-				fragment.requestPermissions(PERMISSION_CAMERA, REQUEST_CAMERA);
-			}
-		}
-		return isGrant;
-	}
-
-	public static boolean requestRecordPermission(@NonNull final Activity activity) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission = null;
-		for (String s : PERMISSION_RECORD) {
-			if (activity.checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission = s;
-				break;
-			}
-		}
-		if (!isGrant) {
-			if (activity.shouldShowRequestPermissionRationale(permission)) {
-				activity.requestPermissions(PERMISSION_RECORD, REQUEST_RECORD);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用开启拍照权限");
-				activity.requestPermissions(PERMISSION_RECORD, REQUEST_RECORD);
-			}
-		}
-		return isGrant;
-	}
-
-	public static boolean requestRecordPermission(@NonNull final Fragment fragment) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return true;
-		}
-		boolean isGrant = true;
-		String permission=null;
-		for (String s : PERMISSION_RECORD) {
-			if (fragment.getActivity().checkSelfPermission(s) != PackageManager.PERMISSION_GRANTED) {
-				isGrant = false;
-				permission=s;
-				break;
-			}
-		}
-		if (!isGrant) {
-			if (fragment.shouldShowRequestPermissionRationale(permission)) {
-				fragment.requestPermissions(PERMISSION_RECORD, REQUEST_RECORD);
-			} else {//选择了拒绝并且不再提醒 ,return false
-				ToastUtils.toast("请在系统应用开启拍照权限");
-				fragment.requestPermissions(PERMISSION_RECORD, REQUEST_RECORD);
-			}
-		}
-		return isGrant;
-	}
-
-	public static boolean isPermissionGranted(@NonNull int[] grantResults) {
+	public static boolean isPermissionGranted(@NonNull Activity activity, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		List<String> denied = new ArrayList<>();
 		if (grantResults.length > 0) {
 			for (int i = 0; i < grantResults.length; i++) {
 				Logd(TAG, "isPermissionGranted: grantResults:" + grantResults[i] + ",i:" + i);
+				String perm = permissions[i];
 				if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-					return false;
+					denied.add(perm);
 				}
 			}
 		}
+		if (!denied.isEmpty()) {
+			boolean always = hasAlwaysDeniedPermission(activity, denied.toArray(new String[denied.size()]));
+			Logd(TAG, "isPermissionGranted: always:" + always);
+			return false;
+		}
 		return true;
 	}
+
+	public static boolean isPermissionGranted(@NonNull Fragment fragment, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		List<String> denied = new ArrayList<>();
+		if (grantResults.length > 0) {
+			for (int i = 0; i < grantResults.length; i++) {
+				Logd(TAG, "isPermissionGranted: grantResults:" + grantResults[i] + ",i:" + i);
+				String perm = permissions[i];
+				if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+					denied.add(perm);
+				}
+			}
+		}
+		if (!denied.isEmpty()) {
+			boolean always = hasAlwaysDeniedPermission(fragment, denied.toArray(new String[denied.size()]));
+			Logd(TAG, "isPermissionGranted: always:" + always);
+			return false;
+		}
+		return true;
+	}
+
+	private static boolean hasAlwaysDeniedPermission(@NonNull Activity activity, @NonNull String[] perms) {
+		if (!shouldShowRationale(activity, perms)) {
+			return true;
+		}
+		return false;
+	}
+
+	private static boolean hasAlwaysDeniedPermission(@NonNull Fragment fragment, @NonNull String[] perms) {
+		if (!shouldShowRationale(fragment, perms)) {
+			return true;
+		}
+		return false;
+	}
+
+
 }

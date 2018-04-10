@@ -59,14 +59,14 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		switch (requestCode) {
 			case PermissionRequest.REQUEST_RECORD:
-				if (PermissionRequest.isPermissionGranted(grantResults)) {
+				if (PermissionRequest.isPermissionGranted(this, permissions, grantResults)) {
 					Logd(TAG, "onRequestPermissionsResult: 开始录制");
 					record();
 				}
 				break;
-			case PermissionRequest.REQUEST_READ:
-				if (PermissionRequest.isPermissionGranted(grantResults)) {
-					if (PermissionRequest.requestRecordPermission(this)) {
+			case PermissionRequest.REQUEST_STORAGE:
+				if (PermissionRequest.isPermissionGranted(this, permissions, grantResults)) {
+					if (PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_RECORD, PermissionRequest.REQUEST_RECORD)) {
 						Logd(TAG, "onRequestPermissionsResult: 开始录制");
 						record();
 					}
@@ -89,7 +89,8 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 
 	@OnClick(R.id.button)
 	public void onViewClicked() {
-		if (PermissionRequest.requestReadPermission(this) && PermissionRequest.requestRecordPermission(this)) {
+		if (PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_RECORD, PermissionRequest.REQUEST_RECORD)
+				&& PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_STORAGE, PermissionRequest.REQUEST_STORAGE)) {
 			Logd(TAG, "onViewClicked: 开始录制");
 			record();
 		}
