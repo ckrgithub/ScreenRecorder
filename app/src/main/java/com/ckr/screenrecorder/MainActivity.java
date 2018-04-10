@@ -99,19 +99,21 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 		ScreenRecorder recorder = ScreenRecorder.getInstance();
 		int recordState = recorder.getRecordState();
 		Logd(TAG, "record: recordState:" + recordState);
-		if (recordState == ScreenRecorder.STATE_INIT || recordState == ScreenRecorder.STATE_STOP) {
+		if (recordState == ScreenRecorder.STATE_IDLE || recordState == ScreenRecorder.STATE_RELEASE) {
 			ScreenRecordActivity.start(this);
 			prepare();
 			startTimer();
 			ToastUtils.toast(startRecord);
 		} else {
-			if (recorder.isPrepare()) {
-				recorder.startRecord();
-				prepare();
-			} else {
-				recorder.release();
+			if (recorder.isRecording()) {
+				recorder.stop();
 				stopTimer();
 				ToastUtils.toast(stopRecord);
+			} else {
+				recorder.startRecord();
+				prepare();
+				startTimer();
+				ToastUtils.toast(startRecord);
 			}
 		}
 	}

@@ -168,7 +168,7 @@ public class ScreenRecorder {
 	}
 
 	public void prepare() {
-		if (recordState == STATE_IDLE || recordState == STATE_RELEASE) {
+		if (recordState == STATE_IDLE || recordState == STATE_STOP || recordState == STATE_RELEASE) {
 			initMediaRecorder();
 		}
 		try {
