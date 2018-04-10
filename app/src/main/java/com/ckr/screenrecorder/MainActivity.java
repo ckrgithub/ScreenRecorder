@@ -79,12 +79,12 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 	protected void onDestroy() {
 		super.onDestroy();
 		unbinder.unbind();
+		stopTimer();
 		if (mHandler != null) {
 			mHandler.removeMessages(TimerHandler.MSG_RECORD_START);
 			mHandler.removeMessages(TimerHandler.MSG_RECORD_STOP);
 			mHandler = null;
 		}
-		stopTimer();
 	}
 
 	@OnClick(R.id.button)
@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 			if (recorder.isRecording()) {
 				recorder.stop();
 				stopTimer();
+				sendMessage(TimerHandler.MSG_RECORD_STOP, count);
+				resetCount();
 				ToastUtils.toast(stopRecord);
 			} else {
 				recorder.startRecord();
@@ -116,6 +118,10 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 				ToastUtils.toast(startRecord);
 			}
 		}
+	}
+
+	private void resetCount() {
+		count = 0;
 	}
 
 	private void prepare() {
@@ -141,23 +147,20 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 			}
 			mTimerExecutor = null;
 		}
-		if (mHandler != null) {
-			Message obtain = Message.obtain();
-			obtain.what = TimerHandler.MSG_RECORD_STOP;
-			obtain.obj = count;
-			mHandler.sendMessage(obtain);
-		}
-		count = 0;
 	}
 
 	@Override
 	public void run() {
 		Logd(TAG, "run: ");
 		++count;
+		sendMessage(TimerHandler.MSG_RECORD_START, count);
+	}
+
+	private void sendMessage(int what, Object obj) {
 		if (mHandler != null) {
 			Message obtain = Message.obtain();
-			obtain.what = TimerHandler.MSG_RECORD_START;
-			obtain.obj = count;
+			obtain.what = what;
+			obtain.obj = obj;
 			mHandler.sendMessage(obtain);
 		}
 	}
@@ -178,6 +181,8 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 					int time = (int) msg.obj;
 					if (time == MAX_VALUE) {
 						stopTimer();
+						MainActivity.this.sendMessage(TimerHandler.MSG_RECORD_STOP, count);
+						resetCount();
 					} else {
 						String minute = "" + time / 60;
 						String second = "" + time % 60;
