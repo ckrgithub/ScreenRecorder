@@ -89,8 +89,8 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 
 	@OnClick(R.id.button)
 	public void onViewClicked() {
-		if (PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_RECORD, PermissionRequest.REQUEST_RECORD)
-				&& PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_STORAGE, PermissionRequest.REQUEST_STORAGE)) {
+		if (PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_STORAGE, PermissionRequest.REQUEST_STORAGE)
+				&& PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_RECORD, PermissionRequest.REQUEST_RECORD)) {
 			Logd(TAG, "onViewClicked: 开始录制");
 			record();
 		}
