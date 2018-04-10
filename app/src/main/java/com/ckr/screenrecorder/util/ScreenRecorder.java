@@ -20,11 +20,6 @@ import java.util.Date;
 
 import static com.ckr.screenrecorder.util.RecordLog.Logd;
 
-/**
- * Created by supertramp on 16/12/1.
- * 截屏:将ImageReader传入createVirtualDisplay
- * 录屏:将MediaCodec传入createVirtualDisplay
- */
 public class ScreenRecorder {
 	private static final String TAG = "ScreenRecorder";
 	public static final int REQUEST_MEDIA_PROJECTION = 1;

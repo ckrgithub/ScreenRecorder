@@ -15,10 +15,6 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_CALENDAR;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-/**
- * Created by Administrator on 2017/5/11.
- */
-
 public class PermissionRequest {
     private static final String TAG = "PermissionRequest";
     public static final int REQUEST_PHONE = 0;

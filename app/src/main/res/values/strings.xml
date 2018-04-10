@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScreenRecorder</string>
+    <string name="app_name">屏幕录制</string>
 
 
     <string name="record_start">开始录屏</string>
