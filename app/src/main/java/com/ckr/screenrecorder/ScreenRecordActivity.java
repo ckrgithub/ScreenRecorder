@@ -12,7 +12,7 @@ public class ScreenRecordActivity extends AppCompatActivity {
 
 	public static void start(Context context) {
 		Intent starter = new Intent(context, ScreenRecordActivity.class);
-		starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//		starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(starter);
 	}
 

@@ -28,6 +28,14 @@ import static com.ckr.screenrecorder.util.RecordLog.Logd;
 public class ScreenRecorder {
 	private static final String TAG = "ScreenRecorder";
 	public static final int REQUEST_MEDIA_PROJECTION = 1;
+	public static final int STATE_DEFAULT = -1;
+	public static final int STATE_INIT = 0;
+	public static final int STATE_PREPARE = 1;
+	public static final int STATE_START = 2;
+	public static final int STATE_RESUME = 3;
+	public static final int STATE_PAUSE = 4;
+	public static final int STATE_STOP = 5;
+	public static final int STATE_RELEASE = 6;
 	private int mWidth;
 	private int mHeight;
 	private int mDensity;
@@ -35,7 +43,7 @@ public class ScreenRecorder {
 	private MediaProjection mProjection;
 	private VirtualDisplay mVirtualDisplay;
 	private MediaRecorder mMediaRecorder;
-	private boolean recordError = false;
+	private int recordState = STATE_INIT;
 
 	private ScreenRecorder() {
 	}
@@ -57,8 +65,24 @@ public class ScreenRecorder {
 		}
 	}
 
-	public boolean isRecordError() {
-		return recordError;
+	public int getRecordState() {
+		return recordState;
+	}
+
+	public boolean isRecording() {
+		return recordState == STATE_START || recordState == STATE_RESUME;
+	}
+
+	public boolean isPause() {
+		return recordState == STATE_PAUSE;
+	}
+
+	public boolean isStop() {
+		return recordState == STATE_STOP;
+	}
+
+	public boolean isPrepare() {
+		return recordState == STATE_PREPARE;
 	}
 
 	public Intent getIntent() {
@@ -78,54 +102,80 @@ public class ScreenRecorder {
 		}
 	}
 
+	public void pauseRecord() {
+		Logd(TAG, "pauseRecord: ");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			if (mMediaRecorder != null) {
+				if (recordState == STATE_START || recordState == STATE_RESUME) {
+					recordState = STATE_PAUSE;
+					mMediaRecorder.pause();
+				}
+			}
+		}
+	}
+
+	public void resumeRecord() {
+		Logd(TAG, "pauseRecord: ");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			if (mMediaRecorder != null) {
+				if (recordState == STATE_PAUSE) {
+					recordState = STATE_RESUME;
+					mMediaRecorder.resume();
+				}
+			}
+		}
+	}
+
 	public void startRecord() {
 		Logd(TAG, "startRecord: ");
-		recordError = false;
 		initMediaRecorder();
-		if (!recordError) {
+		if (recordState == STATE_PREPARE) {
 			createVirtualDisplay();
+			recordState = STATE_START;
 			mMediaRecorder.start();
-
 		}
 	}
 
 	private void initMediaRecorder() {
 		Logd(TAG, "initMediaRecorder: ");
-		File file = null;
-		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			String parentPath = Environment.getExternalStorageDirectory() + File.separator + ScreenRecordApplication.getContext().getString(R.string.app_name);
-			File parentFile = new File(parentPath);
-			if (!parentFile.exists()) {
-				parentFile.mkdirs();
+//		if (mMediaRecorder == null) {
+			Logd(TAG, "initMediaRecorder: init");
+			File file = null;
+			if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+				String parentPath = Environment.getExternalStorageDirectory() + File.separator + ScreenRecordApplication.getContext().getString(R.string.app_name);
+				File parentFile = new File(parentPath);
+				if (!parentFile.exists()) {
+					parentFile.mkdirs();
+				}
+				String dateName = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+				file = new File(parentPath, "录屏_" + dateName + ".mp4");
+			} else {
+				String parentPath = ScreenRecordApplication.getContext().getCacheDir().getAbsolutePath();
+				String dateName = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+				file = new File(parentPath, "录屏_" + dateName + ".mp4");
 			}
-			String dateName = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-			file = new File(parentPath, "录屏_" + dateName + ".mp4");
-		} else {
-			String parentPath = ScreenRecordApplication.getContext().getCacheDir().getAbsolutePath();
-			String dateName = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-			file = new File(parentPath, "录屏_" + dateName + ".mp4");
-		}
-		String path = file.getAbsolutePath();
-		Logd(TAG, "initMediaRecorder: path:" + path);
-		mMediaRecorder = new MediaRecorder();
-		mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-		mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		mMediaRecorder.setOutputFile(path);
-		mMediaRecorder.setVideoSize(mWidth, mHeight);
-		mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-		mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-		mMediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
-		mMediaRecorder.setVideoFrameRate(10);
+			String path = file.getAbsolutePath();
+			Logd(TAG, "initMediaRecorder: path:" + path);
+			mMediaRecorder = new MediaRecorder();
+			mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+			mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+			mMediaRecorder.setOutputFile(path);
+			mMediaRecorder.setVideoSize(mWidth, mHeight);
+			mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+			mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+			mMediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
+			mMediaRecorder.setVideoFrameRate(10);
+//		}
 		try {
 			Logd(TAG, "initMediaRecorder: prepare");
+			recordState = STATE_PREPARE;
 			mMediaRecorder.prepare();
 		} catch (IOException e) {
 			e.printStackTrace();
-			ToastUtils.toast("录制异常，请从新录制");
-			recordError = true;
+//			recordState = STATE_STOP;
 			mMediaRecorder.release();
-			mMediaRecorder = null;
+			ToastUtils.toast("录制异常，请从新录制");
 		}
 	}
 
@@ -151,6 +201,7 @@ public class ScreenRecorder {
 				mProjection.stop();
 				mVirtualDisplay.release();
 				if (mMediaRecorder != null) {
+					recordState = STATE_STOP;
 					mMediaRecorder.stop();
 					mMediaRecorder.release();
 				}

@@ -79,6 +79,12 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 	protected void onDestroy() {
 		super.onDestroy();
 		unbinder.unbind();
+		if (mHandler != null) {
+			mHandler.removeMessages(TimerHandler.MSG_RECORD_START);
+			mHandler.removeMessages(TimerHandler.MSG_RECORD_STOP);
+			mHandler = null;
+		}
+		stopTimer();
 	}
 
 	@OnClick(R.id.button)
@@ -91,13 +97,15 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 
 	private void record() {
 		ScreenRecorder recorder = ScreenRecorder.getInstance();
-		if (null == recorder) {
+		int recordState = recorder.getRecordState();
+		Logd(TAG, "record: recordState:" + recordState);
+		if (recordState == ScreenRecorder.STATE_INIT || recordState == ScreenRecorder.STATE_STOP) {
 			ScreenRecordActivity.start(this);
 			prepare();
 			startTimer();
 			ToastUtils.toast(startRecord);
 		} else {
-			if (recorder.isRecordError()) {
+			if (recorder.isPrepare()) {
 				recorder.startRecord();
 				prepare();
 			} else {
@@ -118,18 +126,20 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 	}
 
 	private void startTimer() {
+		Logd(TAG, "startTimer: mTimerExecutor:" + mTimerExecutor);
 		mTimerExecutor = Executors.newScheduledThreadPool(1);
 		mTimerExecutor.scheduleAtFixedRate(this, 1, 1, TimeUnit.SECONDS);
 	}
 
 	private void stopTimer() {
-		if (null != mTimerExecutor) {
+		Logd(TAG, "stopTimer: mTimerExecutor:" + mTimerExecutor);
+		if (mTimerExecutor != null) {
 			if (!mTimerExecutor.isShutdown()) {
 				mTimerExecutor.shutdown();
 			}
 			mTimerExecutor = null;
 		}
-		if (null != mHandler) {
+		if (mHandler != null) {
 			Message obtain = Message.obtain();
 			obtain.what = TimerHandler.MSG_RECORD_STOP;
 			obtain.obj = count;
@@ -140,8 +150,9 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 
 	@Override
 	public void run() {
+		Logd(TAG, "run: ");
 		++count;
-		if (null != mHandler) {
+		if (mHandler != null) {
 			Message obtain = Message.obtain();
 			obtain.what = TimerHandler.MSG_RECORD_START;
 			obtain.obj = count;
@@ -183,9 +194,6 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 					break;
 				case MSG_RECORD_STOP:
 					time = (int) msg.obj;
-//					if (time > 900) {
-//						time = 900;
-//					}
 					String minute = "" + time / 60;
 					String second = "" + time % 60;
 					if (minute.length() < 2) {
@@ -194,11 +202,11 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 					if (second.length() < 2) {
 						second = "0" + second;
 					}
-					if (null != textView) {
+					if (textView != null) {
 						Logd(TAG, "handleMessage: stop  minute:" + minute + ",second:" + second);
 						textView.setText(String.format(recordedText, minute, second));
 					}
-					if (null != button && !startRecord.equals(button.getText())) {
+					if (button != null && !startRecord.equals(button.getText())) {
 						button.setText(startRecord);
 					}
 					break;
