@@ -1,10 +1,16 @@
 package com.ckr.screenrecorder;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -27,8 +33,9 @@ import butterknife.Unbinder;
 
 import static com.ckr.screenrecorder.util.RecordLog.Logd;
 
-public class MainActivity extends AppCompatActivity implements Runnable {
+public class MainActivity extends AppCompatActivity implements Runnable, PermissionRequest.PermissionListener, DialogInterface.OnClickListener {
 	private static final String TAG = "MainActivity";
+	private static final int REQUEST_CODE = 1129;
 	@BindView(R.id.button)
 	Button button;
 	@BindView(R.id.textView)
@@ -37,12 +44,15 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 	String startRecord;
 	@BindString(R.string.record_stop)
 	String stopRecord;
+	@BindString(R.string.tips)
+	String tips;
 	String recordingText;
 	String recordedText;
 	private Unbinder unbinder;
 	private ScheduledExecutorService mTimerExecutor;
 	private int count = 0;
 	private TimerHandler mHandler = new TimerHandler();
+	private AlertDialog dialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +82,16 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 					}
 				}
 				break;
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == RESULT_OK) {
+			if (requestCode == REQUEST_CODE) {
+//				ToastUtils.toast();
+			}
 		}
 	}
 
@@ -163,6 +183,35 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 			obtain.what = what;
 			obtain.obj = obj;
 			mHandler.sendMessage(obtain);
+		}
+	}
+
+	@Override
+	public void onPermissionPermanentlyDenied() {
+		Logd(TAG, "onPermissionPermanentlyDenied: ");
+		AlertDialog.Builder builder = new AlertDialog.Builder(this.getApplicationContext());
+		dialog = builder.setCancelable(true)
+				.setTitle(tips)
+				.setMessage("")
+				.setPositiveButton(R.string.confirm, this)
+				.setNegativeButton(R.string.cancel, this)
+				.show();
+	}
+
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		if (dialog != null) {
+			dialog.dismiss();
+		}
+		switch (which) {
+			case Dialog.BUTTON_POSITIVE:
+				startActivityForResult(
+						new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+								.setData(Uri.fromParts("package", getPackageName(), null)),
+						REQUEST_CODE);
+				break;
+			case Dialog.BUTTON_NEGATIVE:
+				break;
 		}
 	}
 

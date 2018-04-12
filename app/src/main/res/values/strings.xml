@@ -6,4 +6,8 @@
     <string name="record_stop">停止录屏</string>
     <string name="recording">正在录制：%1$s : %2$s</string>
     <string name="recorded">已录制：%1$s : %2$s</string>
+
+    <string name="tips">提示</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
 </resources>
