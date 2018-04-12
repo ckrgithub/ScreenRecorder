@@ -56,9 +56,13 @@ public class ScreenRecorder {
 		this.mWidth = width;
 		this.mHeight = height;
 		this.mDensity = density;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (isLollipopOrAbove()) {
 			mManager = (MediaProjectionManager) ScreenRecordApplication.getContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 		}
+	}
+
+	private boolean isLollipopOrAbove() {
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 	}
 
 	public int getRecordState() {
@@ -82,7 +86,7 @@ public class ScreenRecorder {
 	}
 
 	public Intent getIntent() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (isLollipopOrAbove()) {
 			if (mManager != null) {
 				return mManager.createScreenCaptureIntent();
 			}
@@ -91,7 +95,7 @@ public class ScreenRecorder {
 	}
 
 	public void setProjection(int resultCode, Intent data) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (isLollipopOrAbove()) {
 			if (mManager != null) {
 				this.mProjection = mManager.getMediaProjection(resultCode, data);
 			}
@@ -183,7 +187,7 @@ public class ScreenRecorder {
 	}
 
 	private void createVirtualDisplay() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (isLollipopOrAbove()) {
 			if (mProjection != null) {
 				mVirtualDisplay = mProjection.createVirtualDisplay(
 						"ScreenRecorder",
@@ -199,7 +203,7 @@ public class ScreenRecorder {
 	}
 
 	public void release() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (isLollipopOrAbove()) {
 			if (mProjection != null) {
 				mProjection.stop();
 				mProjection = null;
