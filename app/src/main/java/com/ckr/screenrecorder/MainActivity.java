@@ -189,10 +189,10 @@ public class MainActivity extends AppCompatActivity implements Runnable, Permiss
 	@Override
 	public void onPermissionPermanentlyDenied() {
 		Logd(TAG, "onPermissionPermanentlyDenied: ");
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.getApplicationContext());
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		dialog = builder.setCancelable(true)
 				.setTitle(tips)
-				.setMessage("")
+				.setMessage("请在应用管理开启权限")
 				.setPositiveButton(R.string.confirm, this)
 				.setNegativeButton(R.string.cancel, this)
 				.show();
