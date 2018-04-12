@@ -41,7 +41,7 @@ public class ScreenRecordActivity extends AppCompatActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (RESULT_OK == resultCode && ScreenRecorder.REQUEST_MEDIA_PROJECTION == requestCode) {
 			Logd(TAG, "onActivityResult: startRecord");
-			if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				ScreenRecorder mScreenRecorder = ScreenRecorder.getInstance();
 				mScreenRecorder.setProjection(resultCode, data);
 				mScreenRecorder.startRecord();
