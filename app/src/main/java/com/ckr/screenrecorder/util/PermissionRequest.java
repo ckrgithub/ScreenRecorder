@@ -51,7 +51,7 @@ public class PermissionRequest {
 			}
 		}
 		if (!isGranted) {
-			if (shouldShowRationale(activity, group)) {//仅仅选择了拒绝
+			if (shouldShowRationale(activity, group)) {
 				Logd(TAG, "requestPermission: shouldShowRationale=true");
 				ActivityCompat.requestPermissions(activity, group, requestCode);
 			} else {
@@ -85,7 +85,6 @@ public class PermissionRequest {
 		return isGrant;
 	}
 
-
 	private static boolean shouldShowRationale(Activity activity, @NonNull String[] perms) {
 		for (String perm : perms) {
 			if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
@@ -115,8 +114,13 @@ public class PermissionRequest {
 			}
 		}
 		if (!denied.isEmpty()) {
-			boolean always = hasAlwaysDeniedPermission(activity, denied.toArray(new String[denied.size()]));
-			Logd(TAG, "isPermissionGranted: always:" + always);
+			boolean b = hasPermissionPermanentlyDenied(activity, denied.toArray(new String[denied.size()]));
+			Logd(TAG, "isPermissionGranted: b:" + b);
+			if (b) {
+				if (activity instanceof PermissionListener) {
+					((PermissionListener) activity).onPermissionPermanentlyDenied();
+				}
+			}
 			return false;
 		}
 		return true;
@@ -133,26 +137,33 @@ public class PermissionRequest {
 			}
 		}
 		if (!denied.isEmpty()) {
-			boolean always = hasAlwaysDeniedPermission(fragment, denied.toArray(new String[denied.size()]));
-			Logd(TAG, "isPermissionGranted: always:" + always);
+			boolean b = hasPermissionPermanentlyDenied(fragment, denied.toArray(new String[denied.size()]));
+			Logd(TAG, "isPermissionGranted: b:" + b);
+			if (b) {
+				if (fragment instanceof PermissionListener) {
+					((PermissionListener) fragment).onPermissionPermanentlyDenied();
+				}
+			}
 			return false;
 		}
 		return true;
 	}
 
-	private static boolean hasAlwaysDeniedPermission(@NonNull Activity activity, @NonNull String[] perms) {
+	private static boolean hasPermissionPermanentlyDenied(@NonNull Activity activity, @NonNull String[] perms) {
 		if (!shouldShowRationale(activity, perms)) {
 			return true;
 		}
 		return false;
 	}
 
-	private static boolean hasAlwaysDeniedPermission(@NonNull Fragment fragment, @NonNull String[] perms) {
+	private static boolean hasPermissionPermanentlyDenied(@NonNull Fragment fragment, @NonNull String[] perms) {
 		if (!shouldShowRationale(fragment, perms)) {
 			return true;
 		}
 		return false;
 	}
 
-
+	public interface PermissionListener {
+		void onPermissionPermanentlyDenied();
+	}
 }
