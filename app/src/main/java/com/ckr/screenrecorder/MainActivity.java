@@ -12,6 +12,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements Runnable, Permiss
 	String stopRecord;
 	@BindString(R.string.tips)
 	String tips;
+	@BindString(R.string.message)
+	String message;
 	String recordingText;
 	String recordedText;
 	private Unbinder unbinder;
@@ -88,9 +91,14 @@ public class MainActivity extends AppCompatActivity implements Runnable, Permiss
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode == RESULT_OK) {
-			if (requestCode == REQUEST_CODE) {
-//				ToastUtils.toast();
+		Log.d(TAG, "onActivityResult: requestCode:" + requestCode + ",resultCode:" + resultCode);
+		if (requestCode == REQUEST_CODE) {
+			if (PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_STORAGE, PermissionRequest.REQUEST_STORAGE)
+					&& PermissionRequest.requestPermission(this, PermissionRequest.PERMISSION_RECORD, PermissionRequest.REQUEST_RECORD)) {
+				Logd(TAG, "onActivityResult: 开始录制");
+				record();
+			} else {
+				ToastUtils.toast(message);
 			}
 		}
 	}
@@ -189,13 +197,15 @@ public class MainActivity extends AppCompatActivity implements Runnable, Permiss
 	@Override
 	public void onPermissionPermanentlyDenied() {
 		Logd(TAG, "onPermissionPermanentlyDenied: ");
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		dialog = builder.setCancelable(true)
-				.setTitle(tips)
-				.setMessage("请在应用管理开启权限")
-				.setPositiveButton(R.string.confirm, this)
-				.setNegativeButton(R.string.cancel, this)
-				.show();
+		if (dialog == null) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			dialog = builder.setCancelable(true)
+					.setTitle(tips)
+					.setMessage(message)
+					.setPositiveButton(R.string.confirm, this)
+					.setNegativeButton(R.string.cancel, this).create();
+		}
+		dialog.show();
 	}
 
 	@Override

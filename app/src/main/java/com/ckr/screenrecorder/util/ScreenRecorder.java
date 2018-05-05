@@ -22,7 +22,7 @@ import static com.ckr.screenrecorder.util.RecordLog.Logd;
 
 public class ScreenRecorder {
 	private static final String TAG = "ScreenRecorder";
-	public static final int REQUEST_MEDIA_PROJECTION = 1;
+	public static final int REQUEST_MEDIA_PROJECTION = 2018;
 	public static final int STATE_IDLE = -1;
 	public static final int STATE_INIT = 0;
 	public static final int STATE_PREPARING = 10;
@@ -150,7 +150,7 @@ public class ScreenRecorder {
 			if (!parentFile.exists()) {
 				parentFile.mkdirs();
 			}
-			String dateName = new SimpleDateFormat("HHmmss").format(new Date());
+			String dateName = new SimpleDateFormat("HH:mm:ss").format(new Date());
 			file = new File(parentPath, "录屏_" + dateName + ".mp4");
 		} else {
 			String parentPath = ScreenRecordApplication.getContext().getCacheDir().getAbsolutePath();
@@ -182,6 +182,7 @@ public class ScreenRecorder {
 			recordState = STATE_PREPARED;
 		} catch (IOException e) {
 			e.printStackTrace();
+			Logd(TAG, "initMediaRecorder,  prepare: 录制异常");
 			ToastUtils.toast("录制异常，请从新录制");
 		}
 	}

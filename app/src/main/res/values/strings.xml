@@ -8,6 +8,7 @@
     <string name="recorded">已录制：%1$s : %2$s</string>
 
     <string name="tips">提示</string>
+    <string name="message">请在应用管理开启权限</string>
     <string name="confirm">确定</string>
     <string name="cancel">取消</string>
 </resources>

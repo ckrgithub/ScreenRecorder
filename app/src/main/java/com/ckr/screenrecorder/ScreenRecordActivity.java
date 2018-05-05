@@ -39,6 +39,7 @@ public class ScreenRecordActivity extends AppCompatActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		Logd(TAG, "onActivityResult: requestCode:" + requestCode + ",resultCode:" + resultCode);
 		if (RESULT_OK == resultCode && ScreenRecorder.REQUEST_MEDIA_PROJECTION == requestCode) {
 			Logd(TAG, "onActivityResult: startRecord");
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
